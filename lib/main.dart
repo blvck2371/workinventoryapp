@@ -1,122 +1,182 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'controllers/main_controller.dart';
+import 'models/work_session.dart';
+import 'services/hive_service.dart';
+import 'screens/onboarding_screen.dart';
+import 'screens/dashboard_screen.dart';
+import 'screens/add_session_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/session_details_screen.dart';
+import 'screens/edit_session_screen.dart';
+import 'screens/history_screen.dart';
+import 'screens/test_screen.dart';
+import 'utils/colors.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialiser les données de localisation françaises
+  await initializeDateFormatting('fr_FR', null);
+  
+  // Initialiser Hive
+  await HiveService.initialize();
+  
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return GetMaterialApp(
+      title: 'Work Inventory',
+      debugShowCheckedModeBanner: false,
+      locale: const Locale('fr', 'FR'),
+      supportedLocales: const [
+        Locale('fr', 'FR'),
+        Locale('en', 'US'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.blue,
+        primaryColor: AppColors.primary,
+        scaffoldBackgroundColor: AppColors.background,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: AppColors.textPrimary,
+          elevation: 0,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: AppColors.primary),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      initialBinding: BindingsBuilder(() {
+        Get.put<MainController>(MainController());
+      }),
+      getPages: [
+        GetPage(
+          name: '/',
+          page: () => const AppWrapper(),
+        ),
+        GetPage(
+          name: '/onboarding',
+          page: () => const OnboardingScreen(),
+        ),
+        GetPage(
+          name: '/home',
+          page: () => const DashboardScreen(),
+        ),
+        GetPage(
+          name: '/dashboard',
+          page: () => const DashboardScreen(),
+        ),
+        GetPage(
+          name: '/add-session',
+          page: () => const AddSessionScreen(),
+        ),
+        GetPage(
+          name: '/settings',
+          page: () => const SettingsScreen(),
+        ),
+        GetPage(
+          name: '/session-details',
+          page: () {
+            final session = Get.arguments as WorkSession;
+            return SessionDetailsScreen(session: session);
+          },
+        ),
+        GetPage(
+          name: '/edit-session',
+          page: () {
+            final session = Get.arguments as WorkSession;
+            return EditSessionScreen(session: session);
+          },
+        ),
+        GetPage(
+          name: '/history',
+          page: () => const HistoryScreen(),
+        ),
+        GetPage(
+          name: '/test',
+          page: () => const TestScreen(),
+        ),
+      ],
+      home: const AppWrapper(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class AppWrapper extends StatelessWidget {
+  const AppWrapper({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+    return GetBuilder<MainController>(
+      builder: (controller) {
+        // Afficher l'écran de chargement seulement si on charge ET qu'on n'a pas encore de paramètres
+        if (controller.isLoading.value && controller.userSettings.value == null) {
+          return const Scaffold(
+            backgroundColor: AppColors.background,
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
+                children: [
+                  CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
+                  SizedBox(height: 16),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+                    'Chargement...',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 16,
+                    ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          );
+        }
+
+        // Si c'est la première utilisation ou qu'il n'y a pas de paramètres sauvegardés
+        if (controller.isFirstTime) {
+          return const OnboardingScreen();
+        }
+
+        // Sinon, afficher le dashboard
+        return const DashboardScreen();
+      },
     );
   }
 }

@@ -1,5 +1,5 @@
 name: workinventoryapp
-description: "A new Flutter project."
+description: "Application de gestion d'heures de travail étudiant"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -34,6 +34,34 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  
+  # Base de données locale
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Gestion d'état
+  get: ^4.6.6
+  
+  # UI et composants
+  flutter_hooks: ^0.20.5
+  hooks_riverpod: ^2.5.1
+  
+  # Date et heure
+  intl: ^0.20.2
+  flutter_datetime_picker_plus: ^2.1.0
+  flutter_localizations:
+    sdk: flutter
+  
+  # PDF et impression
+  pdf: ^3.10.7
+  printing: ^5.11.1
+  path_provider: ^2.1.2
+  syncfusion_flutter_pdf: ^30.1.39
+  
+  # Utilitaires
+  shared_preferences: ^2.2.2
+  permission_handler: ^11.3.1
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +73,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+
+  # Hive pour le développement
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -87,3 +119,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # Assets
+  assets:
+    - assets/images/
+  
+  # Fonts personnalisées (optionnel)
+  # fonts:
+  #   - family: Poppins
+  #     fonts:
+  #       - asset: assets/fonts/Poppins-Regular.ttf
+  #       - asset: assets/fonts/Poppins-Bold.ttf
+  #         weight: 700
